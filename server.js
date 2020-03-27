@@ -1,35 +1,32 @@
-'use strict';
+// server.js
+// where your node app starts
 
+// init project
 var express = require('express');
-var cors = require('cors');
-
 var app = express();
 
-// allow Cross Origin requests, for testing
-app.use(cors());
+// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
+// so that your API is remotely testable by FCC 
+var cors = require('cors');
+app.use(cors({optionSuccessStatus: 200}));  // some legacy browsers choke on 204
 
-app.use('/public', express.static(process.cwd() + '/public'));
+// http://expressjs.com/en/starter/static-files.html
+app.use(express.static('public'));
 
-// get ip infos even if passing through a proxy like here
-app.enable('trust proxy'); 
+// http://expressjs.com/en/starter/basic-routing.html
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + '/views/index.html');
+});
 
-app.route('/')
-  .get(function (req, res) {
-     res.sendFile(process.cwd() + '/views/index.html');
-  });
 
-app.route('/api/whoami')
-  .get(function(req, res){
-    res.json({ipaddress: req.ip, language: req.headers['accept-language'], software: req.headers['user-agent']});
-  });
+// your first API endpoint... 
+app.get("/api/hello", function (req, res) {
+  res.json({greeting: 'hello API'});
+});
 
-// 404 Not Found Middleware
-app.use(function(req, res, next) {
-  res.status(404)
-    .type('text')
-    .send('Not Found');
-})
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log('Node.js listening ...');
+
+// listen for requests :)
+var listener = app.listen(process.env.PORT, function () {
+  console.log('Your app is listening on port ' + listener.address().port);
 });
